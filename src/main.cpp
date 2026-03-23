@@ -3,10 +3,11 @@
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <random>
-
 #ifndef GEODE_IS_IOS
 #include <Geode/utils/Keyboard.hpp>
 #endif
+
+
 
 using namespace geode::prelude;
 int getRandInt(int min, int max) {
@@ -24,29 +25,26 @@ struct ButtonPositionData {
 };
 
 $on_mod(Loaded) {
-#ifndef GEODE_IS_IOS
-    Keyboard::registerKeybind(
-        "activate-phonk-edit"_spr,                 
-        "Trigger Phonk Edit Manually",              
-        "Manually triggers the phonk edit effect.", 
-        KEY_V,                                      
-        [](bool isDown){                            
-            if (!isDown) return; 
+    // Регистрируем событие клавиатуры
+    new EventListener([](KeyboardInputEvent* ev){
+        // Проверяем клавишу и действие
+        if(ev->data.key == KEY_V && ev->data.action == KeyboardInputData::Action::Press) {
             auto pl = PlayLayer::get();
-            if (!pl) return;
+            if(!pl) return ListenerResult::Propagate;
+            
             auto player = pl->m_player1;
-            if (!player) return;
-
+            if(!player) return ListenerResult::Propagate;
+            
+            // Запускаем твою логику
             gonnaPause = true;
             static_cast<ShortsEditPO*>(player)->scheduleOnce(
                 schedule_selector(ShortsEditPO::thoseWhoKnow),
                 Mod::get()->getSettingValue<double>("action-delay")
             );
         }
-    );
-#endif
+        return ListenerResult::Propagate;
+    }, typeid(KeyboardInputEvent).name());
 }
-
 bool pausedByMod = false;
 bool gonnaPause = false;
 bool canPlayEffect = false;
