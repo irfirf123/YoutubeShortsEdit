@@ -7,12 +7,12 @@
 
 using namespace geode::prelude;
 
-// Глобальные флаги
+// Флаги
 bool pausedByMod = false;
 bool gonnaPause = false;
 bool canPlayEffect = false;
 
-// Функция случайного числа
+// Рандом
 int getRandInt(int min, int max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -20,34 +20,29 @@ int getRandInt(int min, int max) {
     return distrib(gen);
 }
 
-struct ButtonPositionData {
-    float xPos;
-    float yPos;
-    float xAnchor;
-    float yAnchor;
-};
-
+// Подключение к событию клавиатуры
 $on_mod(Loaded) {
-    log::info("Mod loaded, registering keyboard listener...");
+    log::info("Registering keyboard listener...");
 
-    // Ловим события клавиатуры через новый API
-    PlayLayer::get()->addEventListener<KeyboardInputEvent>([](KeyboardInputEvent* ev){
-        // В новой версии getKey() и getAction()
-        if(ev->getKey() == KEY_V && ev->getAction() == KeyboardInputData::Action::Press) {
+    // Подписка на события клавиатуры
+    KeyboardInputEvent::listen([](KeyboardInputData& ev){
+        // Проверяем клавишу и действие
+        if(ev.key == KEY_V && ev.action == KeyboardInputData::Action::Press) {
             auto pl = PlayLayer::get();
-            if(!pl) return ListenerResult::Propagate;
+            if(!pl) return true;
 
             auto player = pl->m_player1;
-            if(!player) return ListenerResult::Propagate;
+            if(!player) return true;
 
-            // Запуск твоей логики
+            // Запускаем твою логику
             gonnaPause = true;
             static_cast<ShortsEditPO*>(player)->scheduleOnce(
                 schedule_selector(ShortsEditPO::thoseWhoKnow),
                 Mod::get()->getSettingValue<double>("action-delay")
             );
         }
-        return ListenerResult::Propagate;
+
+        return true; // true = пропускаем дальше
     });
 }
 
