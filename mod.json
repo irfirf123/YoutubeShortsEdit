@@ -290,7 +290,7 @@
 		"source": "https://github.com/DeepRsnanceX/YoutubeShortsEdit"
 	},
 	"dependencies": {
-		"geode.node-ids": ">=v1.20.0",
-		"geode.custom-keybinds": ">=1.11.0"
+		"geode.node-ids": ">=v1.23.3",
+		"geode.custom-keybinds": ">=2.1.0"
 	}
 }
