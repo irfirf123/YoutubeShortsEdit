@@ -24,15 +24,27 @@ struct ButtonPositionData {
 };
 
 $on_mod(Loaded) {
-	#ifndef GEODE_IS_IOS
-	BindManager::get()->registerBindable({
-		"activate-phonk-edit"_spr,
-		"Trigger Phonk Edit Manually",
-		"Manually triggers the phonk edit effect.",
-		{ Keybind::create(KEY_V, Modifier::None) },
-		Mod::get()->getName()
-	});
-	#endif
+#ifndef GEODE_IS_IOS
+    Keyboard::registerKeybind(
+        "activate-phonk-edit"_spr,                 
+        "Trigger Phonk Edit Manually",              
+        "Manually triggers the phonk edit effect.", 
+        KEY_V,                                      
+        [](bool isDown){                            
+            if (!isDown) return; 
+            auto pl = PlayLayer::get();
+            if (!pl) return;
+            auto player = pl->m_player1;
+            if (!player) return;
+
+            gonnaPause = true;
+            static_cast<ShortsEditPO*>(player)->scheduleOnce(
+                schedule_selector(ShortsEditPO::thoseWhoKnow),
+                Mod::get()->getSettingValue<double>("action-delay")
+            );
+        }
+    );
+#endif
 }
 
 bool pausedByMod = false;
