@@ -2,38 +2,45 @@
 #include <Geode/modify/PlayerObject.hpp>
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/modify/PlayLayer.hpp>
-#include <random>
 #include <Geode/utils/Keyboard.hpp>
-
-
+#include <random>
 
 using namespace geode::prelude;
+
+// Глобальные флаги
+bool pausedByMod = false;
+bool gonnaPause = false;
+bool canPlayEffect = false;
+
+// Функция случайного числа
 int getRandInt(int min, int max) {
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	std::uniform_int_distribution<> distrib(min, max);
-	return distrib(gen);
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(min, max);
+    return distrib(gen);
 }
 
 struct ButtonPositionData {
-	float xPos;
-	float yPos;
-	float xAnchor;
-	float yAnchor;
+    float xPos;
+    float yPos;
+    float xAnchor;
+    float yAnchor;
 };
 
 $on_mod(Loaded) {
-    // Регистрируем событие клавиатуры
-    new EventListener([](KeyboardInputEvent* ev){
-        // Проверяем клавишу и действие
-        if(ev->data.key == KEY_V && ev->data.action == KeyboardInputData::Action::Press) {
+    log::info("Mod loaded, registering keyboard listener...");
+
+    // Ловим события клавиатуры через новый API
+    PlayLayer::get()->addEventListener<KeyboardInputEvent>([](KeyboardInputEvent* ev){
+        // В новой версии getKey() и getAction()
+        if(ev->getKey() == KEY_V && ev->getAction() == KeyboardInputData::Action::Press) {
             auto pl = PlayLayer::get();
             if(!pl) return ListenerResult::Propagate;
-            
+
             auto player = pl->m_player1;
             if(!player) return ListenerResult::Propagate;
-            
-            // Запускаем твою логику
+
+            // Запуск твоей логики
             gonnaPause = true;
             static_cast<ShortsEditPO*>(player)->scheduleOnce(
                 schedule_selector(ShortsEditPO::thoseWhoKnow),
@@ -41,11 +48,8 @@ $on_mod(Loaded) {
             );
         }
         return ListenerResult::Propagate;
-    }, typeid(KeyboardInputEvent).name());
+    });
 }
-bool pausedByMod = false;
-bool gonnaPause = false;
-bool canPlayEffect = false;
 
 class $modify(ShortsEditPL, PlayLayer) {
 	struct Fields {
