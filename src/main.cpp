@@ -3,9 +3,7 @@
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <random>
-#ifndef GEODE_IS_IOS
 #include <Geode/utils/Keyboard.hpp>
-#endif
 
 
 
