@@ -5,12 +5,10 @@
 #include <random>
 
 #ifndef GEODE_IS_IOS
-#include <geode.custom-keybinds/include/Keybinds.hpp>
-using namespace keybinds;
+#include <Geode/modify/Keybinds.hpp> 
 #endif
 
 using namespace geode::prelude;
-
 int getRandInt(int min, int max) {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
